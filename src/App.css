@@ -95,4 +95,128 @@ body {
   border-color: #ea580c;
 }
 
-/* Quản lý*/
+/* Sidebar*/
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 64px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s;
+  overflow: hidden;
+}
+
+.sidebar.expanded {
+  width: 256px;
+}
+
+.sidebar .logo {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar .logo img {
+  cursor: pointer;
+}
+
+.sidebar .toggle-button {
+  display: none;
+}
+
+.sidebar.expanded .toggle-button {
+  display: inline;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 8px;
+}
+
+.sidebar nav ul li a {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  color: #4b5563;
+  text-decoration: none;
+}
+
+.sidebar nav ul li a:hover {
+  color: #f97316;
+}
+
+.sidebar nav ul li a i {
+  margin-right: 8px;
+}
+
+.sidebar nav ul li a span {
+  display: none;
+}
+
+.sidebar.expanded nav ul li a span {
+  display: inline;
+}
+
+.sidebar nav ul li ul {
+  display: none;
+  padding-left: 24px;
+}
+
+.sidebar nav ul li.expanded ul {
+  display: block;
+}
+
+.sidebar nav ul li ul li a {
+  color: #6b7280;
+}
+
+.sidebar nav ul li ul li a:hover {
+  color: #f97316;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header span {
+  color: #4b5563;
+  margin-right: 16px;
+}
+
+.header img {
+  border-radius: 50%;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+}

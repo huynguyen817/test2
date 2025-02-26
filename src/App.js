@@ -3,6 +3,7 @@ import { db, ref, onValue, remove } from "./firebaseConfig";
 import { Table, Button, Modal } from "antd";
 import CreateProduct from "./CreateProduct";
 import EditProduct from "./EditProduct";
+import Sidebar from "./Sidebar";
 
 export default function ProductManagement() {
   const [products, setProducts] = useState([]);
