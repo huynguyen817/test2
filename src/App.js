@@ -35,7 +35,7 @@ export default function EventForm() {
 
   return (
     <div style={{ fontFamily: "Roboto, sans-serif", padding: 20 }}>
-      <h2 style={{ textAlign: "center", fontWeight: "bold" }}>Tạo Sự Kiện</h2>
+      <h2 style={{ textAlign: "center", fontWeight: "bold" }}>Tạo Sản Phẩm</h2>
       <Form form={form} onFinish={handleSubmit} layout="vertical">
         <table style={{ width: "100%", borderCollapse: "collapse", maxWidth: 600, margin: "auto" }}>
           <tbody>
