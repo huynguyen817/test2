@@ -1,106 +1,77 @@
-import { Form, Input, Button, Checkbox, DatePicker, Select, InputNumber } from "antd";
-import { db, ref, set, push } from "./firebaseConfig";
-import "@fontsource/roboto";
+import React, { useEffect, useState } from "react";
+import { db, ref, onValue, remove } from "./firebaseConfig";
+import { Table, Button, Modal } from "antd";
+import CreateProduct from "./CreateProduct";
+import EditProduct from "./EditProduct";
 
-const { RangePicker } = DatePicker;
-const { Option } = Select;
+export default function ProductManagement() {
+  const [products, setProducts] = useState([]);
+  const [isCreateVisible, setIsCreateVisible] = useState(false);
+  const [isEditVisible, setIsEditVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-export default function EventForm() {
-  const [form] = Form.useForm();
+  // Lấy dữ liệu từ Firebase
+  useEffect(() => {
+    const productsRef = ref(db, "events");
+    onValue(productsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const productList = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setProducts(productList);
+      } else {
+        setProducts([]);
+      }
+    });
+  }, []);
 
-  const handleSubmit = (values) => {
-    if (!values.title || !values.eventType || !values.dateRange || !values.eventName || !values.points) {
-      console.error("Lỗi: Vui lòng nhập đầy đủ thông tin!");
-      return;
-    }
-
-    const notificationsRef = ref(db, "events");
-    const newNotificationRef = push(notificationsRef);
-
-    set(newNotificationRef, {
-      title: values.title,
-      eventType: values.eventType,
-      startDate: values.dateRange[0].format("YYYY-MM-DD"),
-      endDate: values.dateRange[1].format("YYYY-MM-DD"),
-      eventName: values.eventName,
-      points: values.points,
-      timestamp: Date.now(),
-    })
-      .then(() => {
-        console.log("✅ Sự kiện đã được lưu vào Firebase!");
-        form.resetFields();
-      })
-      .catch((error) => console.error("❌ Lỗi khi ghi vào Firebase:", error));
+  // Xóa sản phẩm
+  const handleDelete = (id) => {
+    remove(ref(db, `events/${id}`))
+      .then(() => console.log("✅ Xóa thành công"))
+      .catch((error) => console.error("❌ Lỗi khi xóa:", error));
   };
 
+  // Mở modal Edit
+  const handleEdit = (product) => {
+    setSelectedProduct(product);
+    setIsEditVisible(true);
+  };
+
+  const columns = [
+    { title: "Tên sản phẩm", dataIndex: "title", key: "title" },
+    { title: "Loại sự kiện", dataIndex: "eventType", key: "eventType" },
+    { title: "Ngày bắt đầu", dataIndex: "startDate", key: "startDate" },
+    { title: "Ngày kết thúc", dataIndex: "endDate", key: "endDate" },
+    { title: "Tên sự kiện", dataIndex: "eventName", key: "eventName" },
+    { title: "Điểm", dataIndex: "points", key: "points" },
+    {
+      title: "Hành động",
+      key: "actions",
+      render: (_, record) => (
+        <>
+          <Button onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>Sửa</Button>
+          <Button onClick={() => handleDelete(record.id)} danger>Xóa</Button>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div style={{ fontFamily: "Roboto, sans-serif", padding: 20 }}>
-      <h2 style={{ textAlign: "center", fontWeight: "bold" }}>Tạo Sự Kiện</h2>
-      <Form form={form} onFinish={handleSubmit} layout="vertical">
-        <table style={{ width: "100%", borderCollapse: "collapse", maxWidth: 600, margin: "auto" }}>
-          <tbody>
-            <tr>
-              <td><label>Tiêu đề</label></td>
-              <td>
-                <Form.Item name="title" rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}>
-                  <Input placeholder="Nhập tiêu đề sự kiện" />
-                </Form.Item>
-              </td>
-            </tr>
+    <div>
+      <h2>Quản lý sản phẩm</h2>
+      <Button type="primary" onClick={() => setIsCreateVisible(true)}>Tạo sản phẩm</Button>
+      <Table dataSource={products} columns={columns} rowKey="id" />
 
-            <tr>
-              <td><label>Loại sự kiện</label></td>
-              <td>
-                <Form.Item name="eventType" rules={[{ required: true, message: "Chọn loại sự kiện!" }]}>
-                  <Checkbox.Group>
-                    <Checkbox value="Quý">Quý</Checkbox>
-                    <Checkbox value="Năm">Năm</Checkbox>
-                  </Checkbox.Group>
-                </Form.Item>
-              </td>
-            </tr>
+      <Modal open={isCreateVisible} onCancel={() => setIsCreateVisible(false)} footer={null}>
+        <CreateProduct closeModal={() => setIsCreateVisible(false)} />
+      </Modal>
 
-            <tr>
-              <td><label>Thời hạn</label></td>
-              <td>
-                <Form.Item name="dateRange" rules={[{ required: true, message: "Chọn khoảng thời gian!" }]}>
-                  <RangePicker />
-                </Form.Item>
-              </td>
-            </tr>
-
-            <tr>
-              <td><label>Tên Sự kiện</label></td>
-              <td>
-                <Form.Item name="eventName" rules={[{ required: true, message: "Chọn tên sự kiện!" }]}>
-                  <Select placeholder="Chọn sự kiện">
-                    <Option value="Sự kiện A">Sự kiện A</Option>
-                    <Option value="Sự kiện B">Sự kiện B</Option>
-                    <Option value="Sự kiện C">Sự kiện C</Option>
-                  </Select>
-                </Form.Item>
-              </td>
-            </tr>
-
-            <tr>
-              <td><label>Điểm</label></td>
-              <td>
-                <Form.Item name="points" rules={[{ required: true, message: "Nhập điểm thưởng!" }]}>
-                  <InputNumber min={0} placeholder="Nhập điểm" style={{ width: "100%" }} />
-                </Form.Item>
-              </td>
-            </tr>
-
-            <tr>
-              <td colSpan="2" style={{ textAlign: "center" }}>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">Tạo Sự Kiện</Button>
-                </Form.Item>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </Form>
+      <Modal open={isEditVisible} onCancel={() => setIsEditVisible(false)} footer={null}>
+        {selectedProduct && <EditProduct product={selectedProduct} closeModal={() => setIsEditVisible(false)} />}
+      </Modal>
     </div>
   );
 }
